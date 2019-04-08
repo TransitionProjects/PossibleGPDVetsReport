@@ -89,8 +89,14 @@ class FindPotentialGPDPT:
 
     def add_contact_info(self, all_possible_vets=self.filter_and_concat()):
         """
-        Perform a left merge between the all_possible_vets dataframe (which is
+        Perform a merge between the all_possible_vets dataframe (which is
         the output of the filter_and_concat method) and the self.contact
         dataframe, then return the resulting dataframe.
         """
-        pass
+        merged = self.contact.merge(
+            all_possible_vets,
+            on="Client Unique Id",
+            how="right"
+        )
+
+        return merged
