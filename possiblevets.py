@@ -43,7 +43,49 @@ class FindPotentialGPDPT:
         services then concatenate the two dataframes into a single data frame
         which will then be returned.
         """
-        pass
+        # Remove rows from the self.shelter and self.day data frames where the
+        # client unique id is in the self.cm dataframe
+        shelter_clean = self.shelter[
+            ~(self.shelter["Client Unique Id"].isin(self.cm["Client Unique Id"]))
+        ]
+        day_clean = self.day[
+            ~(self.day["Client Unique Id"].isin(self.cm["Client Unique Id"]))
+        ]
+
+        # Add a date column to each of the dataframes containing entry date or
+        # the service date depending on the dataframe
+        shelter_clean["Date"] = shelter_clean["Entry Exit Entry Date"]
+        day_clean["Date"] = day_clean["Service Provide Start Date"]
+
+        # Concatenate the dataframes keeping only client identifing fields
+        # and the date column
+        concatenated = pd.concat(
+            [
+                shelter_clean[[
+                    "Client Unique Id",
+                    "Client Uid",
+                    "Client First Name",
+                    "Client Last Name",
+                    "Date"
+                ]],
+                day_clean[[
+                    "Client Unique Id",
+                    "Client Uid",
+                    "Client First Name",
+                    "Client Last Name",
+                    "Date"
+                ]]
+            ],
+            ignoreindex=True
+        ).sort_values(
+            by=["Client Unique Id", "Date"],
+            ascending=False
+        ).drop_duplicates(
+            subset=["Client Unique Id", "Date"]
+        ).reset_index()
+
+        # return the concatenated dataframe
+        return concatenated
 
     def add_contact_info(self, all_possible_vets=self.filter_and_concat()):
         """
