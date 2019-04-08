@@ -28,13 +28,26 @@ class FindPotentialGPDPT:
         self.cm = pd.read_excel(file, sheet_name="CMProviderEntryData")
         self.contact = pd.read_excel(file, sheet_name="PTContactData")
 
-    def save(self, final_df):
+        self.save()
+
+    def save(self, final_df=self.add_contact_info()):
         """
         Save an Excel spreadsheet containing participants who are vets and are
         either accessing services at the resource center or staying at a
         shelter but are not being served by case management.
         """
-        pass
+        writer = pd.ExcelWriter(
+            asksaveasfilename(
+                title="Save the Non-GPD Vets In Shelter and Resouce Center report",
+                defaultextension=".xlsx",
+                initialfile="Non-GPD Vets In Shelter and Resouce Center(Processed).xlsx",
+                initialdir="//tproserver/Report/Monthly Reports/"
+            ),
+            engine="xlsxwriter"
+        )
+        final_df.to_excel(writer, sheet_name="Possible GPD Pts", index=False)
+        writer.save()
+        return True
 
     def filter_and_concat(self):
         """
