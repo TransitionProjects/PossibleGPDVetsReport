@@ -102,7 +102,7 @@ class FindPotentialGPDPT:
 
         # Fill the blank Entry Exit Provider Id values with "Transition Projects
         # (TPI) - Day - SP"
-        concatented["Entry Exit Provider Id"].fillna(
+        concatenated["Entry Exit Provider Id"].fillna(
             "Transition Projects (TPI) - Day - SP",
             inplace=True
         )
