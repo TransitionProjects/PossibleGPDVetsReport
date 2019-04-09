@@ -30,12 +30,14 @@ class FindPotentialGPDPT:
 
         self.save()
 
-    def save(self, final_df=self.add_contact_info()):
+    def save(self):
         """
         Save an Excel spreadsheet containing participants who are vets and are
         either accessing services at the resource center or staying at a
         shelter but are not being served by case management.
         """
+        final_df=self.add_contact_info()
+
         writer = pd.ExcelWriter(
             asksaveasfilename(
                 title="Save the Non-GPD Vets In Shelter and Resouce Center report",
@@ -77,6 +79,7 @@ class FindPotentialGPDPT:
                 shelter_clean[[
                     "Client Unique Id",
                     "Client Uid",
+                    "Entry Exit Provider Id",
                     "Client First Name",
                     "Client Last Name",
                     "Date"
@@ -89,27 +92,50 @@ class FindPotentialGPDPT:
                     "Date"
                 ]]
             ],
-            ignoreindex=True
+            ignore_index=True
         ).sort_values(
             by=["Client Unique Id", "Date"],
             ascending=False
         ).drop_duplicates(
-            subset=["Client Unique Id", "Date"]
+            subset=["Client Unique Id"]
         ).reset_index()
+
+        # Fill the blank Entry Exit Provider Id values with "Transition Projects
+        # (TPI) - Day - SP"
+        concatented["Entry Exit Provider Id"].fillna(
+            "Transition Projects (TPI) - Day - SP",
+            inplace=True
+        )
 
         # return the concatenated dataframe
         return concatenated
 
-    def add_contact_info(self, all_possible_vets=self.filter_and_concat()):
+    def add_contact_info(self):
         """
         Perform a merge between the all_possible_vets dataframe (which is
         the output of the filter_and_concat method) and the self.contact
         dataframe, then return the resulting dataframe.
         """
+
+        all_possible_vets=self.filter_and_concat()
+
         merged = self.contact.merge(
             all_possible_vets,
             on="Client Unique Id",
             how="right"
-        )
+        ).sort_values(
+            by=["Client Unique Id", "Phone Number(601)", "Email Address(994)"],
+            ascending=False
+        ).drop_duplicates(subset="Client Unique Id")
 
-        return merged
+        return merged[[
+            "Client Uid",
+            "Client First Name",
+            "Client Last Name",
+            "Phone Number(601)",
+            "Email Address(994)",
+            "Entry Exit Provider Id"
+        ]]
+
+if __name__ == "__main__":
+    FindPotentialGPDPT()
