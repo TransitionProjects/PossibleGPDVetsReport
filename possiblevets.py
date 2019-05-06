@@ -72,6 +72,12 @@ class FindPotentialGPDPT:
         shelter_clean["Date"] = shelter_clean["Entry Exit Entry Date"]
         day_clean["Date"] = day_clean["Service Provide Start Date"]
 
+        # modify the date of birth column in both the shelter_clean and
+        # day_clean data frame Birth Date(893) columns to only contain a date
+        # and not a time element
+        shelter_clean["Date of Birth"] = shelter_clean["Date of Birth(893)"].dt.date
+        day_clean["Date of Birth"] = day_clean["Date of Birth(893)"].dt.date
+
         # Concatenate the dataframes keeping only client identifing fields
         # and the date column
         concatenated = pd.concat(
@@ -82,6 +88,8 @@ class FindPotentialGPDPT:
                     "Entry Exit Provider Id",
                     "Client First Name",
                     "Client Last Name",
+                    "Client Soc Sec No Dashed",
+                    "Date of Birth",
                     "Date"
                 ]],
                 day_clean[[
@@ -89,6 +97,8 @@ class FindPotentialGPDPT:
                     "Client Uid",
                     "Client First Name",
                     "Client Last Name",
+                    "Client Soc Sec No Dashed",
+                    "Date of Birth",
                     "Date"
                 ]]
             ],
@@ -132,6 +142,8 @@ class FindPotentialGPDPT:
             "Client Uid",
             "Client First Name",
             "Client Last Name",
+            "Client Soc Sec No Dashed",
+            "Date of Birth",
             "Phone Number(601)",
             "Email Address(994)",
             "Entry Exit Provider Id"
